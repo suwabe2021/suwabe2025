@@ -15,6 +15,7 @@ def index(request):
         reply_token = data['replyToken']
 
         #スタンプが入力されるとKeyErrorになってしまうので回避
+        #line_message.py側でも「'文字列以外を入力されると～'」になっている場合の処理を入れる
         try:
             line_message = LineMessage(message_creater.create_single_text_message(message['text']))
         except KeyError:

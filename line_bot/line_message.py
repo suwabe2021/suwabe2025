@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 import urllib.request
+from chatgpt.gpt import sentgpt
 import json
 
 #LINEアクセストークンを非公開のjsonから読み込む
@@ -22,7 +23,13 @@ HEADER = {
 
 class LineMessage():
     def __init__(self, messages):
-        self.messages = messages
+        if messages[0]['text'] == "文字列以外を入力されると処理できません。文章で質問してください":
+            self.messages = messages
+        else:
+            self.messages = [
+                {**message, 'text': sentgpt(message['text'])} 
+                for message in messages
+                ]
 
     def reply(self, reply_token):
         body = {
