@@ -3,16 +3,9 @@ from django.views.decorators.csrf import csrf_exempt
 import urllib.request
 from chatgpt.gpt import sentgpt
 import json
+from django.conf import settings
 
-#LINEアクセストークンを非公開のjsonから読み込む
-try:
-    with open("ignore.json") as line:
-        line_json = json.load(line)
-except FileNotFoundError:
-    raise RuntimeError("ファイルが見つからない: line_json")
-except json.JSONDecodeError:
-    raise RuntimeError("JSON形式の解析中にエラーが発生: line_json")
-ACCESSTOKEN = line_json["ACCESSTOKEN"]
+ACCESSTOKEN = settings.ACCESSTOKEN
 
 REPLY_ENDPOINT_URL = "https://api.line.me/v2/bot/message/reply"
 

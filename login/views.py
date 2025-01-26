@@ -1,23 +1,17 @@
 from django.shortcuts import render
 from django.views import View
-import json
+from django.conf import settings
 
-#公開したくないものをjsonに入れてあるのでそれを読み込む
-try:
-    with open("ignore.json") as redirect_file:
-        redirect_data = json.load(redirect_file)
-except FileNotFoundError:
-    raise RuntimeError("ファイルが見つからない: redirect_file.json")
-except json.JSONDecodeError:
-    raise RuntimeError("JSON形式の解析中にエラーが発生: redirect_file.json")
-
-truepass = redirect_data["REDIRECT_KEY"]
+SOCIAL_AUTH_LINE_KEY = settings.SOCIAL_AUTH_LINE_KEY
+SOCIAL_AUTH_LINE_SECRET = settings.SOCIAL_AUTH_LINE_SECRET
+LINE_REDIRECT_URL = settings.LINE_REDIRECT_URL
+REDIRECT_KEY = settings.REDIRECT_KEY
 
 # 共通処理関数
 def render_with_context(request, passwd):
     context = {
         "passwd": passwd,
-        "truepass": truepass,
+        "truepass": REDIRECT_KEY,
     }
     return render(request, "login/index.html", context)
 

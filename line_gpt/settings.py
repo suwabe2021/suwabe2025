@@ -27,10 +27,17 @@ DATABASES = config_data.get("DATABASES", [])
 SOCIAL_AUTH_LINE_KEY = config_data["SOCIAL_AUTH_LINE_KEY"]
 SOCIAL_AUTH_LINE_SECRET = config_data["SOCIAL_AUTH_LINE_SECRET"]
 
-LINE_REDIRECT_URL = 'https://suwabe2021.ddns.net/auth/login/line/'
+#Lineログインに進めるURLパラメータ(loginで使う)
+REDIRECT_KEY = config_data["REDIRECT_KEY"]
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+#LINEリダイレクトURL
+LINE_REDIRECT_URL = "https://" + DOMAINS[0] + "/auth/login/line/"
+
+#LINEのACCESSTOKEN
+ACCESSTOKEN = config_data["ACCESSTOKEN"]
+
+#chatGPTのAPI_KEY
+OPENAI_API_KEY = config_data["OPENAI_API_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -51,7 +58,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'social_django',
     'chatgpt',
-    'login'
+    'login',
+    'portfolio'
 ]
 
 MIDDLEWARE = [
@@ -93,7 +101,7 @@ TEMPLATES = [
 LOGIN_URL = 'login'
 
 #LINEからのログイン認証突破後のリダイレクト先
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = 'portfolio'
 
 WSGI_APPLICATION = 'line_gpt.wsgi.application'
 
