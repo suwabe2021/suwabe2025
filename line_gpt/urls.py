@@ -16,8 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.urls.conf import include
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('line_bot/', include('line_bot.urls')),
     path('admin/', admin.site.urls),
+    path('auth/', include('social_django.urls', namespace='social')),
+    path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+    path('login/', include("login.urls")),
+    #path('portfolio/', views.portfolio, name='portfolio'),
 ]

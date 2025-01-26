@@ -4,7 +4,7 @@ import json
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-#公開していいか判断つかないものをjsonに入れてあるのでそれを読み込む
+#公開したくないものをjsonに入れてあるのでそれを読み込む
 try:
     with open("ignore.json") as config_file:
         config_data = json.load(config_file)
@@ -20,6 +20,15 @@ DOMAINS = config_data.get("DOMAINS", [])
 #セキュリティキーもjsonで管理
 SECRET_KEY = config_data["SECRET_KEY"]
 
+#データベース
+DATABASES = config_data.get("DATABASES", [])
+
+#Lineログイン用のチャンネル
+SOCIAL_AUTH_LINE_KEY = config_data["SOCIAL_AUTH_LINE_KEY"]
+SOCIAL_AUTH_LINE_SECRET = config_data["SOCIAL_AUTH_LINE_SECRET"]
+
+LINE_REDIRECT_URL = 'https://suwabe2021.ddns.net/auth/login/line/'
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -28,6 +37,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = PRIVATE_IPS + DOMAINS + ["localhost", "127.0.0.1"]
 
+#No-IPのサブドメインだとこれ入れないと管理画面でCSRFエラーになる
+CSRF_TRUSTED_ORIGINS = [ "https://" + DOMAINS[0] ]
 
 # Application definition
 
@@ -38,7 +49,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "chatgpt"
+    'social_django',
+    'chatgpt',
+    'login'
 ]
 
 MIDDLEWARE = [
@@ -51,12 +64,17 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.line.LineOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
 ROOT_URLCONF = 'line_gpt.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -64,10 +82,18 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
 ]
+
+#LINEからのログイン
+LOGIN_URL = 'login'
+
+#LINEからのログイン認証突破後のリダイレクト先
+LOGIN_REDIRECT_URL = '/'
 
 WSGI_APPLICATION = 'line_gpt.wsgi.application'
 
@@ -77,8 +103,12 @@ WSGI_APPLICATION = 'line_gpt.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+      "ENGINE":"django.db.backends.postgresql_psycopg2",
+      "NAME":DATABASES[0],
+      "USER":DATABASES[1],
+      "PASSWORD":DATABASES[2],
+      "HOST":"localhost",
+      "PORT":"5432"
     }
 }
 
@@ -100,7 +130,6 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
